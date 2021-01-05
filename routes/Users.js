@@ -151,21 +151,26 @@ router.post("/change-password", auth, async (req, res, next) => {
   }
 });
 
-// router.post("/follow/:id", auth, async (req, res, next) => {
-//   let userf = await User.findById(req.params.id);
-//   if (!userf) return res.status(404).send("User not found");
+router.post("/follow/:id", auth, async (req, res, next) => {
+  let userf = await User.findById(req.params.id);
+  if (!userf) return res.status(404).send("User not found");
 
-//   let user = await User.findById(req.user._id);
+  let user = await User.findById(req.user._id);
+  if (!user) return res.status(404).send("User not found");
 
-//   try {
-//     userf.followersId.push({ user: req.user._id });
-//     user.followingIds.push({ user: req.params.id });
+  console.log(user, userf);
+  for (const i in userf.followersId) {
+    if (userf.followersId[i].user == req.user._id) {
+      return res.status(400).send("already following them");
+    }
+  }
 
-//     res.status(200).status("you are now following them");
-//   } catch (error) {
-//     res.status(400).send(error.message);
-//   }
-// });
+  await userf.followersId.push({ user: req.user._id });
+  await user.followingIds.push({ user: req.params.id });
+  userf = await userf.save();
+  user = await user.save();
+  res.status(200).status(user);
+});
 
 router.put("/:id", auth, multer, async (req, res, next) => {
   let user = await User.findById(req.params.id);
