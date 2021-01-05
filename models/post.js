@@ -7,14 +7,18 @@ const postSchema = mongoose.Schema(
     postText: {
       type: String,
     },
-    comments: {
-      type: String,
-    },
-    likes: {
-      type: Number,
-      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      default: 0,
-    },
+    comments: [
+      {
+        content: String,
+        image: String,
+      },
+    ],
+    likeIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     image: {
       type: String,
     },
@@ -27,17 +31,16 @@ const postSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-const Post = mongoose.model("Post", postSchema);
-
 function postValidation(post) {
   const schema = Joi.object({
     postText: Joi.string().required(),
-    comments: Joi.string(),
-    likes: Joi.number(),
     image: Joi.string(),
     userId: Joi.objectId().required(),
   });
   return schema.validate(post);
 }
+
+const Post = mongoose.model("Post", postSchema);
+
 module.exports.Post = Post;
 module.exports.validate = postValidation;

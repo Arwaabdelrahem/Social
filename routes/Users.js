@@ -6,6 +6,8 @@ const config = require("config");
 const cloud = require("../cloudinary");
 const multer = require("../middleware/multer");
 const fs = require("fs");
+const nodemailer = require("nodemailer");
+const CodeGenerator = require("node-code-generator");
 const auth = require("../middleware/auth");
 const router = express.Router();
 
@@ -74,42 +76,85 @@ router.post("/login", async (req, res, next) => {
     .json({ User: user, Token: token });
 });
 
-// router.post("/reset-password", async (req, res, next) => {
-//   sendingEmail(req.body.email);
-//   let user = User.findOne({
-//     resetPasswordToken: req.params.token,
-//     resetPasswordExpires: { $gt: Date.now() },
-//   });
+router.post("/sendmail", async (req, res, next) => {
+  var generator = new CodeGenerator();
+  const code = generator.generateCodes("#+#+#+", 100)[0];
 
-//   if (!user)
-//     return res
-//       .status(401)
-//       .send("Password reset token is invalid or has expired.");
+  var transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "arwaabdelrahem2@gmail.com",
+      pass: /*config.get("pass")*/ "Panda^%$",
+    },
+  });
 
-//   try {
-//     user.password = req.body.password;
-//     user.resetPasswordToken = undefined;
-//     user.resetPasswordExpires = undefined;
-//     await user.save();
-//     const mailOptions = {
-//       to: user.email,
-//       from: "Social@gmail.com",
-//       subject: "Your password has been changed",
-//       text: `Hi ${user.name} \n
-//                     This is a confirmation that the password for your account ${user.email} has just been changed.\n`,
-//     };
-//     sgMail.send(mailOptions, (error, result) => {
-//       if (error) return res.status(500).json({ message: error.message });
+  var mailOptions = {
+    from: "arwaabdelrahem2@gmail.com",
+    to: req.body.email,
+    subject: "Verfication Code",
+    text: `your verfication code ${code}`,
+  };
 
-//       res.status(200).json({ message: "Your password has been updated." });
-//     });
-//   } catch (error) {
-//     res.status(500).send(error);
-//   }
-// });
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(`Email sent: ${info.response}`);
+    }
+  });
+
+  try {
+    let newUser = await User.findOne({ email: req.body.email });
+
+    newUser.resetPasswordCode = code;
+    newUser = await newUser.save();
+    res.status(200).send(newUser);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+router.post("/reset-password", async (req, res, next) => {
+  let user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return res.status(404).status("User with the given email not exits");
+  }
+
+  try {
+    if (user.resetPasswordCode == req.body.code) {
+      user.password = await bcrypt.hash(req.body.newPassword, 10);
+      user.resetPasswordCode = "";
+      user = await user.save();
+      res.status(200).send(user);
+    }
+  } catch (error) {
+    console.log(user.resetPasswordCode);
+    res.status(400).send(error.message);
+  }
+});
+
+router.post("/change-password", auth, async (req, res, next) => {
+  let user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return res.status(404).status("User with the given email not exits");
+  }
+
+  const compare = await bcrypt.compare(req.body.oldPassword, user.password);
+  if (!compare) return res.status(400).send("Incorrect password");
+
+  try {
+    user.password = await bcrypt.hash(req.body.newPassword, 10);
+    user = await user.save();
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
 
 router.put("/:id", auth, multer, async (req, res, next) => {
   let user = await User.findById(req.params.id);
+
+  if (req.user._id !== req.params.id) return res.status(403).send("Forbidden");
 
   const img = await cloud.cloudUpload(req.file.path);
   if (!img) return res.status(500).send("Error while uploading");
@@ -128,4 +173,5 @@ router.delete("/:id", auth, async (req, res, next) => {
 
   res.send(user);
 });
+
 module.exports = router;
