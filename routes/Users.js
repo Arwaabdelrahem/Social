@@ -84,7 +84,7 @@ router.post("/sendmail", async (req, res, next) => {
     service: "gmail",
     auth: {
       user: "arwaabdelrahem2@gmail.com",
-      pass: /*config.get("pass")*/ "Panda^%$",
+      pass: config.get("pass"),
     },
   });
 
