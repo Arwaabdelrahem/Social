@@ -45,7 +45,7 @@ router.post("/like/:id", auth, async (req, res, next) => {
   for (const i in post.likeIds) {
     if (post.likeIds[i].user == req.user._id) {
       return res.send("already liked");
-    } else {
+    } else if (post.likeIds.isEmpty()) {
       post.likeIds.push({ user: req.user._id });
       post = await post.save();
       res.status(200).send(post);
