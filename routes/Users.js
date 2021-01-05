@@ -158,9 +158,11 @@ router.post("/follow/:id", auth, async (req, res, next) => {
   let user = await User.findById(req.user._id);
   if (!user) return res.status(404).send("User not found");
 
-  console.log(user, userf);
-  for (const i in userf.followersId) {
-    if (userf.followersId[i].user == req.user._id) {
+  for (const i in user.followingIds) {
+    if (
+      userf.followersId[i].user == req.user._id ||
+      user.followingIds[i].user == req.params.id
+    ) {
       return res.status(400).send("already following them");
     }
   }
