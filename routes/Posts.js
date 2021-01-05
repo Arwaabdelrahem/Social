@@ -38,7 +38,7 @@ router.put("/:id", auth, multer, async (req, res, next) => {
   let post = await Post.findById(req.params.id);
   if (!post) return res.status(404).send("Post not found");
 
-  if (post.user !== req.user._id) return res.status(403).send("Forbidden");
+  if (post.user != req.user._id) return res.status(403).send("Forbidden");
 
   const img = await cloud.cloudUpload(req.file.path);
   if (!img) return res.status(500).send("Error while uploading");
@@ -67,7 +67,7 @@ router.delete("/:id", auth, async (req, res, next) => {
   const post = await Post.findById(req.params.id);
   if (!post) return res.send("Post is already not exist");
 
-  if (post.user !== req.user._id) return res.status(403).send("Forbidden");
+  if (post.user != req.user._id) return res.status(403).send("Forbidden");
 
   await post.delete();
   res.status(204).send(post);
