@@ -42,14 +42,14 @@ router.post("/like/:id", auth, async (req, res, next) => {
   let user = await User.findById(req.user._id);
   if (!user) return res.status(404).send("User not found");
 
-  for (const i in post.likeIds) {
-    if (post.likeIds[i].user == req.user._id) {
-      return res.send("already liked");
-    }
+  if (post.likes.indexOf(req.user._id) === -1) {
+    post.likes.push(req.user._id);
+  } else {
+    post.likes.splice(req.user._id);
   }
 
-  post.likeIds.push({ user: req.user._id });
-  post = await post.save();
+  await post.save();
+  await Post.populate(post, [{ path: "likes", select: "name" }]);
   res.status(200).send(post);
 });
 

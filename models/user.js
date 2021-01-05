@@ -20,20 +20,16 @@ const userSchema = mongoose.Schema(
     image: {
       type: String,
     },
-    followersId: [
+    follower: [
       {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
-    followingIds: [
+    following: [
       {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
     resetPasswordCode: {

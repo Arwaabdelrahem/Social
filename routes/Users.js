@@ -150,7 +150,6 @@ router.post("/change-password", auth, async (req, res, next) => {
     res.status(400).send(error.message);
   }
 });
-
 router.post("/follow/:id", auth, async (req, res, next) => {
   let userf = await User.findById(req.params.id);
   if (!userf) return res.status(404).send("User not found");
@@ -158,20 +157,19 @@ router.post("/follow/:id", auth, async (req, res, next) => {
   let user = await User.findById(req.user._id);
   if (!user) return res.status(404).send("User not found");
 
-  for (const i in user.followingIds) {
-    if (
-      userf.followersId[i].user == req.user._id ||
-      user.followingIds[i].user == req.params.id
-    ) {
-      return res.status(400).send("already following them");
-    }
-  }
+  if (user.following.indexOf(req.params.id) === -1)
+    user.following.push(req.params.id);
+  await user.save();
 
-  await userf.followersId.push({ user: req.user._id });
-  await user.followingIds.push({ user: req.params.id });
-  userf = await userf.save();
-  user = await user.save();
-  res.status(200).status(user);
+  if (userf.follower.indexOf(req.user._id) === -1)
+    userf.follower.push(req.user._id);
+  await userf.save();
+
+  await User.populate(user, [
+    { path: "following", select: "name email image" },
+    { path: "follower", select: "name email image" },
+  ]);
+  res.status(200).send(user);
 });
 
 router.put("/:id", auth, multer, async (req, res, next) => {
