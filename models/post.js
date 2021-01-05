@@ -15,8 +15,10 @@ const postSchema = mongoose.Schema(
     ],
     likeIds: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
       },
     ],
     image: {

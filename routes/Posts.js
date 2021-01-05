@@ -4,6 +4,7 @@ const multer = require("../middleware/multer");
 const cloud = require("../cloudinary");
 const fs = require("fs");
 const { Post, validate } = require("../models/post");
+const { User } = require("../models/user");
 
 const router = express.Router();
 
@@ -31,6 +32,24 @@ router.post("/", auth, multer, async (req, res, next) => {
     res.status(201).send(post);
   } catch (error) {
     res.status(400).send(error.message);
+  }
+});
+
+router.post("/like/:id", auth, async (req, res, next) => {
+  let post = await Post.findById(req.params.id);
+  if (!post) return res.status(404).send("post no longer exists");
+
+  let user = await User.findById(req.user._id);
+  if (!user) return res.status(404).send("User not found");
+
+  for (const i in post.likeIds) {
+    if (post.likeIds[i].user == req.user._id) {
+      return res.send("already liked");
+    } else {
+      post.likeIds.push({ user: req.user._id });
+      post = await post.save();
+      res.status(200).send(post);
+    }
   }
 });
 
@@ -63,6 +82,7 @@ router.get("/:id", async (req, res, next) => {
 
   res.status(200).send(post);
 });
+
 router.delete("/:id", auth, async (req, res, next) => {
   const post = await Post.findById(req.params.id);
   if (!post) return res.send("Post is already not exist");

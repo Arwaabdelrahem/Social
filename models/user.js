@@ -22,14 +22,18 @@ const userSchema = mongoose.Schema(
     },
     followersId: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
       },
     ],
     followingIds: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        users: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
       },
     ],
     resetPasswordCode: {

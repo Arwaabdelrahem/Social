@@ -4,6 +4,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const user = require("./routes/Users");
 const post = require("./routes/Posts");
+const comment = require("./routes/comments");
 const { errorHandler, serverErrorHandler } = require("./middleware/error");
 const app = express();
 
@@ -28,6 +29,7 @@ app.use(bodyParser.json());
 
 app.use("/users", user);
 app.use("/posts", post);
+app.use("/posts/comment", comment);
 app.use(errorHandler);
 app.use(serverErrorHandler);
 
