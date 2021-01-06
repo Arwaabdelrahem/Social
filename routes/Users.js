@@ -34,14 +34,16 @@ router.post("/register", multer, async (req, res, next) => {
   let user = await User.findOne({ email: req.body.email });
   if (user) return res.status(400).send("User exists");
 
-  const img = await cloud.cloudUpload(req.file.path);
-  if (!img) return res.status(500).send("Error while uploading");
+  let img;
+  if (req.file) {
+    img = await cloud.cloudUpload(req.file.path);
+  }
 
   user = new User({
     name: req.body.name,
     email: req.body.email,
     password: await bcrypt.hash(req.body.password, 10),
-    image: img.image,
+    image: img ? img.image : undefined,
   });
 
   try {
@@ -177,14 +179,19 @@ router.put("/:id", auth, multer, async (req, res, next) => {
 
   if (req.user._id !== req.params.id) return res.status(403).send("Forbidden");
 
-  const img = await cloud.cloudUpload(req.file.path);
-  if (!img) return res.status(500).send("Error while uploading");
+  let img;
+  if (req.file) {
+    img = await cloud.cloudUpload(req.file.path);
+  }
 
-  user.name = req.body.name;
-  user.email = req.body.email;
-  user.password = await bcrypt.hash(req.body.password, 10);
-  user.image = img.image;
-  user = await user.save();
+  user.set({
+    name: req.body.name,
+    email: req.body.email,
+    password: await bcrypt.hash(req.body.password, 10),
+    image: img ? img.image : undefined,
+  });
+
+  await user.save();
   res.send(user);
 });
 

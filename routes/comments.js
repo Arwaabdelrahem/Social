@@ -10,12 +10,15 @@ router.post("/:id", auth, multer, async (req, res, next) => {
   let post = await Post.findById(req.params.id);
   if (!post) return res.status(404).send("post no longer exist");
 
-  const img = await cloud.cloudUpload(req.file.path);
-  if (!img) return res.status(500).send("Error while uploading");
+  let img;
+  if (req.file) {
+    img = await cloud.cloudUpload(req.file.path);
+  }
 
   let comment = {
     content: req.body.content,
-    image: img.image,
+    image: img ? img.image : undefined,
+    user: req.user._id,
   };
 
   try {
@@ -32,21 +35,27 @@ router.put("/:postId/:id", auth, multer, async (req, res, next) => {
   let post = await Post.findById(req.params.postId);
   if (!post) return res.status(404).send("post no longer exist");
 
-  const img = await cloud.cloudUpload(req.file.path);
-  if (!img) return res.status(500).send("Error while uploading");
+  let img;
+  if (req.file) {
+    img = await cloud.cloudUpload(req.file.path);
+  }
 
   for (const i in post.comments) {
+    if (post.comments[i].user != req.user._id) {
+      return res.status(403).send("Forbidden");
+    }
+
     if (post.comments[i]._id == req.params.id) {
-      let newComment = {
+      post.comments[i].set({
         content: req.body.content,
-        image: img.image,
-      };
-      post.comments[i] = newComment;
+        image: img ? img.image : undefined,
+      });
+      await post.save();
+      break;
     }
   }
 
   try {
-    post = await post.save();
     fs.unlinkSync(req.file.path);
     res.status(200).send("comment sent");
   } catch (error) {

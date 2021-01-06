@@ -1,6 +1,7 @@
 const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 const mongoose = require("mongoose");
+const pagination = require("mongoose-paginate-v2");
 
 const postSchema = mongoose.Schema(
   {
@@ -11,6 +12,10 @@ const postSchema = mongoose.Schema(
       {
         content: String,
         image: String,
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
       },
     ],
     likes: [
@@ -30,6 +35,8 @@ const postSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+
+postSchema.plugin(pagination);
 
 function postValidation(post) {
   const schema = Joi.object({

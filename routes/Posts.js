@@ -9,7 +9,9 @@ const { User } = require("../models/user");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
-  const posts = await Post.find({}).populate("user").select(" -__v");
+  const posts = await Post.paginate();
+  // .populate(["user", "comments.user"])
+  // .select(" -__v");
   res.status(200).send(posts);
 });
 
@@ -17,12 +19,14 @@ router.post("/", auth, multer, async (req, res, next) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const img = await cloud.cloudUpload(req.file.path);
-  if (!img) return res.status(500).send("Error while uploading");
+  let img;
+  if (req.file) {
+    img = await cloud.cloudUpload(req.file.path);
+  }
 
   const post = new Post({
     postText: req.body.postText,
-    image: img.image,
+    image: img ? img.image : undefined,
     user: req.user._id,
   });
 
@@ -59,11 +63,15 @@ router.put("/:id", auth, multer, async (req, res, next) => {
 
   if (post.user != req.user._id) return res.status(403).send("Forbidden");
 
-  const img = await cloud.cloudUpload(req.file.path);
-  if (!img) return res.status(500).send("Error while uploading");
+  let img;
+  if (req.file) {
+    img = await cloud.cloudUpload(req.file.path);
+  }
 
-  post.postText = req.body.postText;
-  post.image = img.image;
+  post.set({
+    postText: req.body.postText,
+    image: img ? img.image : undefined,
+  });
 
   try {
     await post.save();
