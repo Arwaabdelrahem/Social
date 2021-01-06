@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const config = require("config");
 const bodyParser = require("body-parser");
 const user = require("./routes/Users");
 const post = require("./routes/Posts");
@@ -9,15 +10,12 @@ const { errorHandler, serverErrorHandler } = require("./middleware/error");
 const app = express();
 
 mongoose
-  .connect(
-    "mongodb+srv://Arwaabdelrahem:mongo@cluster0.xse5n.mongodb.net/socialDB?retryWrites=true&w=majority",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-    }
-  )
+  .connect(config.get("db"), {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  })
   .then(() => {
     console.log("MongoDB connected");
   });
