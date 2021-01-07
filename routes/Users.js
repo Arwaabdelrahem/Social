@@ -163,13 +163,13 @@ router.post("/follow/:id", auth, async (req, res, next) => {
     user.following.push(req.params.id);
   await user.save();
 
-  if (userf.follower.indexOf(req.user._id) === -1)
-    userf.follower.push(req.user._id);
+  if (userf.followers.indexOf(req.user._id) === -1)
+    userf.followers.push(req.user._id);
   await userf.save();
 
   await User.populate(user, [
     { path: "following", select: "name email image" },
-    { path: "follower", select: "name email image" },
+    { path: "followers", select: "name email image" },
   ]);
   res.status(200).send(user);
 });
