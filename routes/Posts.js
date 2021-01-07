@@ -9,9 +9,14 @@ const { User } = require("../models/user");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
-  const posts = await Post.paginate();
-  // .populate(["user", "comments.user"])
-  // .select(" -__v");
+  var op = {
+    select: "-__v",
+    populate: [
+      { path: "user", select: "name" },
+      { path: "comments.user", select: "name" },
+    ],
+  };
+  const posts = await Post.paginate({}, op);
   res.status(200).send(posts);
 });
 

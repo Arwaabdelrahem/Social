@@ -9,13 +9,17 @@ const comment = require("./routes/comments");
 const { errorHandler, serverErrorHandler } = require("./middleware/error");
 const app = express();
 
+// config.get("db");
 mongoose
-  .connect(config.get("db"), {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  })
+  .connect(
+    "mongodb+srv://Arwaabdelrahem:mongo@cluster0.xse5n.mongodb.net/SocialDB?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+    }
+  )
   .then(() => {
     console.log("MongoDB connected");
   });

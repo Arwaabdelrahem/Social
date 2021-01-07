@@ -12,7 +12,10 @@ const auth = require("../middleware/auth");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
-  const user = await User.find().select("-password -__v");
+  var op = {
+    select: "-password -__v",
+  };
+  const user = await User.paginate({}, op);
   res.status(200).send(user);
 });
 

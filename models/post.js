@@ -30,7 +30,6 @@ const postSchema = mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
   },
   { timestamps: true }
@@ -42,7 +41,6 @@ function postValidation(post) {
   const schema = Joi.object({
     postText: Joi.string().required(),
     image: Joi.string(),
-    userId: Joi.objectId().required(),
   });
   return schema.validate(post);
 }

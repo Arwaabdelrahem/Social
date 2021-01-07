@@ -1,6 +1,7 @@
 const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 const mongoose = require("mongoose");
+const pagination = require("mongoose-paginate-v2");
 
 const userSchema = mongoose.Schema(
   {
@@ -57,6 +58,8 @@ function logValidation(user) {
   });
   return schema.validate(user);
 }
+
+userSchema.plugin(pagination);
 
 const User = mongoose.model("User", userSchema);
 
