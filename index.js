@@ -11,15 +11,12 @@ const app = express();
 
 // config.get("db");
 mongoose
-  .connect(
-    "mongodb+srv://Arwaabdelrahem:mongo@cluster0.xse5n.mongodb.net/SocialDB?retryWrites=true&w=majority",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-    }
-  )
+  .connect(config.get("db"), {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  })
   .then(() => {
     console.log("MongoDB connected");
   });
