@@ -24,7 +24,7 @@ router.post("/:id", auth, multer, async (req, res, next) => {
   try {
     post.comments.push(comment);
     post = await post.save();
-    fs.unlinkSync(req.file.path);
+    if (req.file) fs.unlinkSync(req.file.path);
     res.status(200).send("comment sent");
   } catch (error) {
     res.status(400).send("failed to comment");
@@ -56,7 +56,7 @@ router.put("/:postId/:id", auth, multer, async (req, res, next) => {
   }
 
   try {
-    fs.unlinkSync(req.file.path);
+    if (req.file) fs.unlinkSync(req.file.path);
     res.status(200).send("comment sent");
   } catch (error) {
     res.status(400).send("failed to comment");

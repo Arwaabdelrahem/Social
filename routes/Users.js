@@ -51,7 +51,7 @@ router.post("/register", multer, async (req, res, next) => {
 
   try {
     await user.save();
-    fs.unlinkSync(req.file.path);
+    if (req.file) fs.unlinkSync(req.file.path);
     res.status(201).send(user);
   } catch (error) {
     res.status(400).send(error.message);

@@ -37,7 +37,7 @@ router.post("/", auth, multer, async (req, res, next) => {
 
   try {
     await post.save();
-    fs.unlinkSync(req.file.path);
+    if (req.file) fs.unlinkSync(req.file.path);
     res.status(201).send(post);
   } catch (error) {
     res.status(400).send(error.message);
@@ -80,7 +80,7 @@ router.put("/:id", auth, multer, async (req, res, next) => {
 
   try {
     await post.save();
-    fs.unlinkSync(req.file.path);
+    if (req.file) fs.unlinkSync(req.file.path);
     res.status(200).send(post);
   } catch (error) {
     res.status(400).send(error.message);
