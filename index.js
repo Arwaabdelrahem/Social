@@ -9,9 +9,8 @@ const comment = require("./routes/comments");
 const { errorHandler, serverErrorHandler } = require("./middleware/error");
 const app = express();
 
-// config.get("db");
 mongoose
-  .connect(config.get("db"), {
+  .connect(process.env.DB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
